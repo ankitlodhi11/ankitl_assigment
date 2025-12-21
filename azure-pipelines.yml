@@ -1,13 +1,19 @@
 trigger: none
+pr: none
 
 pool:
   name: assigment
 
 steps:
-- script: echo Hello, world!
-  displayName: Run a one-line script
+- checkout: self
 
+# Terraform Init
 - script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: Run a multi-line script
+    terraform --version
+    terraform init
+  displayName: Terraform Init
+
+# Terraform Plan
+- script: |
+    terraform plan -out=tfplan
+  displayName: Terraform Plan
