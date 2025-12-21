@@ -7,13 +7,15 @@ pool:
 steps:
 - checkout: self
 
-# Terraform Init
+# Terraform Init (DEV)
 - script: |
     terraform --version
     terraform init
-  displayName: Terraform Init
+  workingDirectory: environment/dev
+  displayName: Terraform Init (DEV)
 
-# Terraform Plan
+# Terraform Plan (DEV)
 - script: |
     terraform plan -out=tfplan
-  displayName: Terraform Plan
+  workingDirectory: environment/dev
+  displayName: Terraform Plan (DEV)
