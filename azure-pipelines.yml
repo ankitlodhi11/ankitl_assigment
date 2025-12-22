@@ -7,36 +7,15 @@ pool:
 steps:
 - checkout: self
 
-# Verify Azure Subscription (Optional but recommended)
-- task: AzureCLI@2
-  displayName: Verify Azure Subscription
-  inputs:
-    azureSubscription: azure-infra-sc
-    scriptType: bash
-    scriptLocation: inlineScript
-    inlineScript: |
-      az account show
-      az group show --name infa-rg
-
 # Terraform Init (DEV)
-- task: AzureCLI@2
-  displayName: Terraform Init (DEV)
-  inputs:
-    azureSubscription: azure-infra-sc
-    scriptType: bash
-    scriptLocation: inlineScript
-    inlineScript: |
-      terraform --version
-      terraform init
+- script: |
+    terraform --version
+    terraform init
   workingDirectory: environment/dev
+  displayName: Terraform Init (DEV)
 
 # Terraform Plan (DEV)
-- task: AzureCLI@2
-  displayName: Terraform Plan (DEV)
-  inputs:
-    azureSubscription: azure-infra-sc
-    scriptType: bash
-    scriptLocation: inlineScript
-    inlineScript: |
-      terraform plan -out=tfplan
+- script: |
+    terraform plan -out=tfplan
   workingDirectory: environment/dev
+  displayName: Terraform Plan (DEV)
