@@ -7,73 +7,24 @@ stages:
   jobs:
 
   # ======================
-  # Job 1: Terraform fmt
-  # ======================
-  - job: Terraform_Fmt
-    displayName: 'Terraform Format Check'
-    pool:
-      name: infra
-    steps:
-    - checkout: self
-    - task: Bash@3
-      displayName: 'Terraform fmt'
-      inputs:
-        targetType: inline
-        script: |
-          terraform fmt -check -recursive
-
-  # ======================
-  # Job 2: Terraform Init
+  # Job 1: Terraform Init
   # ======================
   - job: Terraform_Init
-    displayName: 'Terraform Init'
+    displayName: 'Terraform Init Job'
     pool:
       name: infra
-    dependsOn: Terraform_Fmt
     steps:
     - checkout: self
     - task: Bash@3
-      displayName: 'Terraform Init'
+      displayName: 'Terraform Init (DEV)'
       inputs:
         targetType: inline
         script: |
+          terraform --version
           terraform init
         workingDirectory: environment/dev
 
   # ======================
-  # Job 3: Terraform Validate
+  # Job 2: Terraform Plan
   # ======================
-  - job: Terraform_Validate
-    displayName: 'Terraform Validate'
-    pool:
-      name: infra
-    dependsOn: Terraform_Init
-    steps:
-    - checkout: self
-    - task: Bash@3
-      displayName: 'Terraform Validate'
-      inputs:
-        targetType: inline
-        script: |
-          terraform validate
-        workingDirectory: environment/dev
-
-  # ======================
-  # Job 4: Terraform Plan
-  # ======================
-  - job: Terraform_Plan
-    displayName: 'Terraform Plan'
-    pool:
-      name: infra
-    dependsOn: Terraform_Validate
-    steps:
-    - checkout: self
-    - task: Bash@3
-      displayName: 'Terraform Plan'
-      inputs:
-        targetType: inline
-        script: |
-          terraform plan -out=tfplan
-        workingDirectory: environment/dev
-
-  
+  - job: Terraform
