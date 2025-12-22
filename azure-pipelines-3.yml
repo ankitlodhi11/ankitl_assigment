@@ -9,8 +9,13 @@ steps:
     provider: 'azurerm'
     command: 'init'
     workingDirectory: '$(System.DefaultWorkingDirectory)/environment/dev'
-    backendServiceArm: 'heropanti'
+    backendServiceArm: '' # SP env vars are used
     backendAzureRmStorageAccountName: 'tfstate2025abc123'
     backendAzureRmContainerName: 'tfstate'
     backendAzureRmKey: 'dev/terraform.tfstate'
 
+- task: TerraformTask@5
+  inputs:
+    provider: 'azurerm'
+    command: 'plan'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/environment/dev'
