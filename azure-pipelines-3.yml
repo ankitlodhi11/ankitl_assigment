@@ -1,20 +1,16 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
 - main
 
-pool:infra
+pool: infra
 
 steps:
 - task: TerraformTask@5
   inputs:
     provider: 'azurerm'
     command: 'init'
-    workingDirectory: '$(System.DefaultWorkingDirectory)environment/dev'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/environment/dev'
     backendServiceArm: 'heropanti'
     backendAzureRmStorageAccountName: 'tfstate2025abc123'
     backendAzureRmContainerName: 'tfstate'
     backendAzureRmKey: 'dev/terraform.tfstate'
+
