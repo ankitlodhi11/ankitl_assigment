@@ -6,8 +6,8 @@ terraform {
     }
   }
 backend "azurerm" {
-    resource_group_name  = "infa-rg"
-    storage_account_name = "infastorageaccountal"
+    resource_group_name  = "infra-tfstate"
+    storage_account_name = "tfstate2025abc123"
     container_name       = "tfstate"
     key                  = "dev/terraform.tfstate"
 }
@@ -16,5 +16,6 @@ provider "azurerm" {
   features {}
   subscription_id = "56de03ab-1570-40b1-bd13-5a9ca5b1e106"  # Resources ke liye correct subscription
 }
+
 
 
