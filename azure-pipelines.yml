@@ -15,10 +15,10 @@ stages:
       name: infra
     steps:
     - checkout: self
-    - task: Bash@3
+
+    - task: CmdLine@2
       displayName: 'Terraform Init (DEV)'
       inputs:
-        targetType: inline
         script: |
           terraform --version
           terraform init
@@ -27,4 +27,17 @@ stages:
   # ======================
   # Job 2: Terraform Plan
   # ======================
-  - job: Terraform
+  - job: Terraform_Plan
+    displayName: 'Terraform Plan Job'
+    dependsOn: Terraform_Init
+    pool:
+      name: infra
+    steps:
+    - checkout: self
+
+    - task: CmdLine@2
+      displayName: 'Terraform Plan (DEV)'
+      inputs:
+        script: |
+          terraform plan -out=tfplan
+        workingDirectory: environment/dev
