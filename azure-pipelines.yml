@@ -2,7 +2,7 @@ trigger: none
 pr: none
 
 pool:
-  name: assigment
+  name: infra
 
 steps:
 - checkout: self
