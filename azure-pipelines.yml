@@ -1,21 +1,47 @@
 trigger: none
 pr: none
 
-pool:
-  name: infra
+stages:
 
-steps:
-- checkout: self
+# ======================
+# Stage: Terraform Init
+# ======================
+- stage: Terraform_Init
+  displayName: 'Terraform Init Stage'
+  jobs:
+  - job: Init_Job
+    displayName: 'Terraform Init Job'
+    pool:
+      name: infra
+    steps:
+    - checkout: self
+    - task: Bash@3
+      displayName: 'Terraform Init (DEV)'
+      inputs:
+        targetType: inline
+        script: |
+          terraform --version
+          terraform init
+        workingDirectory: environment/dev
 
-# Terraform Init (DEV)
-- script: |
-    terraform --version
-    terraform init
-  workingDirectory: environment/dev
-  displayName: Terraform Init (DEV)
+# ======================
+# Stage: Terraform Plan
+# ======================
+- stage: Terraform_Plan
+  displayName: 'Terraform Plan Stage'
+  dependsOn: Terraform_Init
+  jobs:
+  - job: Plan_Job
+    displayName: 'Terraform Plan Job'
+    pool:
+      name: infra
+    steps:
+    - checkout: self
+    - task: Bash@3
+      displayName: 'Terraform Plan (DEV)'
+      inputs:
+        targetType: inline
+        script: |
+          terraform plan -out=tfplan
+        workingDirectory: environment/dev
 
-# Terraform Plan (DEV)
-- script: |
-    terraform plan -out=tfplan
-  workingDirectory: environment/dev
-  displayName: Terraform Plan (DEV)
