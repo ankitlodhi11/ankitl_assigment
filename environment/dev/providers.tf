@@ -6,15 +6,16 @@ terraform {
     }
   }
 backend "azurerm" {
-    resource_group_name  = "terraformclass1"
-    storage_account_name = "calss1storageaccount1"
+    resource_group_name  = "infa-rg"
+    storage_account_name = "infastorageaccountal"
     container_name       = "tfstate"
-    key                  = "tfstate"
+    key                  = "dev/terraform.tfstate"
 }
 }
 
 provider "azurerm" {
   features {}
-  subscription_id = "0fed9206-7606-41d6-bea8-83033d2b432f"
+  subscription_id = "56de03ab-1570-40b1-bd13-5a9ca5b1e106"
 
 }
+
