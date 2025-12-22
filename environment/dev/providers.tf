@@ -12,10 +12,9 @@ backend "azurerm" {
     key                  = "dev/terraform.tfstate"
 }
 }
-
 provider "azurerm" {
   features {}
-  subscription_id = "56de03ab-1570-40b1-bd13-5a9ca5b1e106"
-
+  subscription_id = "56de03ab-1570-40b1-bd13-5a9ca5b1e106"  # Resources ke liye correct subscription
 }
+
 
