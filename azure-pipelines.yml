@@ -1,43 +1,135 @@
-trigger: none
-pr: none
+pool: infra
+
+trigger: none 
 
 stages:
-- stage: Terraform_Dev
-  displayName: 'Terraform Dev Stage'
+- stage: PreCommit
+  displayName: Pre-Commit / Static Analysis Stage
+  pool: infra
+  jobs: 
+  - job: TerraformValidate
+    displayName: Terraform Validate
+    steps:
+    - task: TerraformTask@5
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/environment/dev'
+        backendServiceArm: 'Azure subscription 1(56de03ab-1570-40b1-bd13-5a9ca5b1e106)'
+        backendAzureRmStorageAccountName: 'tfstate2025abc123'
+        backendAzureRmContainerName: 'tfstate'
+        backendAzureRmKey: 'dev/terraform.tfstate'
+    - task: TerraformTask@5
+      inputs:
+        provider: 'azurerm'
+        command: 'validate'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/environment/dev'
+
+  - job: TerraformFmt
+    dependsOn: TerraformValidate
+    displayName: Terraform Fmt
+    steps:
+    - task: TerraformTask@5
+      inputs:
+        provider: 'azurerm'
+        command: 'custom'
+        environmentServiceNameAzureRM: 'Azure subscription 1(56de03ab-1570-40b1-bd13-5a9ca5b1e106)'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/environment/dev'
+        outputTo: 'console'
+        customCommand: 'fmt'
+
+  - job: tfsec
+    dependsOn: TerraformFmt
+    displayName: TfSec Scan
+    steps:
+    - task: tfsec@1
+      inputs:
+        version: 'v1.26.0'
+        dir: '$(System.DefaultWorkingDirectory)/environment/dev'
+
+  - job: tflint
+    dependsOn: tfsec
+    displayName: TFLint
+    steps:
+    - task: PowerShell@2
+      continueOnError: true
+      inputs:
+        targetType: 'inline'
+        script: |
+          winget install TerraformLinters.tflint     
+          ls   
+          tflint
+        errorActionPreference: 'continue'        
+        workingDirectory: '$(System.DefaultWorkingDirectory)/environment/dev'
+
+- stage: costStage
+  dependsOn: PreCommit
+  displayName: Cost & Impact Assessment Stage
+  jobs: 
+  - job: InfraCost
+    displayName: InfraCost
+    steps:
+    - task: PowerShell@2
+      inputs:
+        targetType: 'inline'
+        script: 'infracost breakdown --path=.'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/environment/dev'
+
+- stage: plan
+  displayName: Plan & Review Stage
+  pool: infra
+  jobs: 
+  - job: TerraformPlan
+    displayName: Terraform Plan
+    steps: 
+    - task: TerraformTask@5
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/environment/dev'
+        backendServiceArm: 'Azure subscription 1(56de03ab-1570-40b1-bd13-5a9ca5b1e106)'
+        backendAzureRmStorageAccountName: 'tfstate2025abc123'
+        backendAzureRmContainerName: 'tfstate'
+        backendAzureRmKey: 'dev/terraform.tfstate'
+    - task: TerraformTask@5
+      inputs:
+        provider: 'azurerm'
+        command: 'plan'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/environment/dev'
+        environmentServiceNameAzureRM: 'Azure subscription 1(56de03ab-1570-40b1-bd13-5a9ca5b1e106)'
+
+- stage: approval
+  dependsOn: plan
+  displayName: Approval & Governance Stage
   jobs:
-
-  # ======================
-  # Job 1: Terraform Init
-  # ======================
-  - job: Terraform_Init
-    displayName: 'Terraform Init Job'
-    pool:
-      name: infra
-    steps:
-    - checkout: self
-
-    - task: CmdLine@2
-      displayName: 'Terraform Init (DEV)'
+  - job: ManualApproval
+    displayName: Manual Approval
+    pool: server
+    steps: 
+    - task: ManualValidation@1
       inputs:
-        script: |
-          terraform --version
-          terraform init
-        workingDirectory: environment/dev
+        notifyUsers: 'ankitlodhi11@gmail.com'
 
-  # ======================
-  # Job 2: Terraform Plan
-  # ======================
-  - job: Terraform_Plan
-    displayName: 'Terraform Plan Job'
-    dependsOn: Terraform_Init
-    pool:
-      name: infra
+- stage: apply
+  dependsOn: approval
+  displayName: Deploy / Apply Stage
+  pool: infra
+  jobs:
+  - job: TerraformApply
+    displayName: Terraform Apply
     steps:
-    - checkout: self
-
-    - task: CmdLine@2
-      displayName: 'Terraform Plan (DEV)'
+    - task: TerraformTask@5
       inputs:
-        script: |
-          terraform plan -out=tfplan
-        workingDirectory: environment/dev
+        provider: 'azurerm'
+        command: 'init'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/environment/dev'
+        backendServiceArm: 'Azure subscription 1(56de03ab-1570-40b1-bd13-5a9ca5b1e106)'
+        backendAzureRmStorageAccountName: 'tfstate2025abc123'
+        backendAzureRmContainerName: 'tfstate'
+        backendAzureRmKey: 'dev/terraform.tfstate'
+    - task: TerraformTask@5
+      inputs:
+        provider: 'azurerm'
+        command: 'apply'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/environment/dev'
+        environmentServiceNameAzureRM: 'Azure subscription 1(56de03ab-1570-40b1-bd13-5a9ca5b1e106)'
