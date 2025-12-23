@@ -59,17 +59,6 @@ stages:
     displayName: Manual Validation kardo Please
     pool: infra
     steps:
-    - task: ManualValidation@1
-      inputs:
-        notifyUsers: 'ankitlodhi11@gmail.com'
-        approvers: 'ankitlodhi11@gmail.com'
-        instructions: 'Plan check karle pagli...'
-
-  - job: TerraformApply
-    displayName: Terraform Apply wala Job
-    dependsOn: ManualValidation
-    pool: infra
-    steps:
     - task: TerraformTask@5
       inputs:
         provider: 'azurerm'
