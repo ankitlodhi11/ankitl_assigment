@@ -9,22 +9,18 @@ variables:
 
 stages:
 - stage: Build
-  displayName: Build
+  displayName: infralogin
   jobs:       
   - job: TerraformInitPlan
     displayName: Terraform Init and Plan Job
     steps: 
-    - task: TerraformInstaller@1
-      inputs:
-        terraformVersion: 'latest'
-
     - task: TerraformTask@5
       inputs:
         provider: 'azurerm'
         command: 'init'
         workingDirectory: $(workDir)
-        backendServiceArm: 'Azure subscription 1(56de03ab-1570-40b1-bd13-5a9ca5b1e106)'
-        backendAzureRmStorageAccountName: 'infrastoregeal'
+        backendServiceArm: 'amit'
+        backendAzureRmStorageAccountName: 'vmstorageal'
         backendAzureRmContainerName: 'tfstate'
         backendAzureRmKey: 'dev.terraform.tfstate'
 
@@ -33,7 +29,7 @@ stages:
         provider: 'azurerm'
         command: 'plan'
         workingDirectory: $(workDir)
-        environmentServiceNameAzureRM: 'Azure subscription 1(56de03ab-1570-40b1-bd13-5a9ca5b1e106)'
+        environmentServiceNameAzureRM: 'amit'
 
 - stage: Scanning
   displayName: Scanning
@@ -61,7 +57,7 @@ stages:
   jobs: 
   - job: ManualValidation
     displayName: Manual Validation kardo Please
-    pool: server
+    pool: infra
     steps:
     - task: ManualValidation@1
       inputs:
@@ -72,15 +68,15 @@ stages:
   - job: TerraformApply
     displayName: Terraform Apply wala Job
     dependsOn: ManualValidation
-    pool: Default
+    pool: infra
     steps:
     - task: TerraformTask@5
       inputs:
         provider: 'azurerm'
         command: 'init'
         workingDirectory: $(workDir)
-        backendServiceArm: 'Azure subscription 1(56de03ab-1570-40b1-bd13-5a9ca5b1e106)'
-        backendAzureRmStorageAccountName: 'devopsinsidersstate'
+        backendServiceArm: 'amit'
+        backendAzureRmStorageAccountName: 'vmstorageal'
         backendAzureRmContainerName: 'tfstate'
         backendAzureRmKey: 'dev.terraform.tfstate'
     - task: TerraformTask@5
@@ -88,5 +84,6 @@ stages:
         provider: 'azurerm'
         command: 'apply'
         workingDirectory: $(workDir)
-        environmentServiceNameAzureRM: 'Azure subscription 1(56de03ab-1570-40b1-bd13-5a9ca5b1e106)'
+        environmentServiceNameAzureRM: 'amit'
+
 
