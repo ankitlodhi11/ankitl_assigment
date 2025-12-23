@@ -31,39 +31,3 @@ stages:
         command: 'plan'
         workingDirectory: '$(workDir)'
         environmentServiceNameAzureRM: 'amit'
-
-- stage: Scanning
-  displayName: Scanning
-  jobs: 
-  - job: TFSecScanningJob
-    displayName: TFSEC Scanning Wala Job
-    pool: infra
-    steps:
-    - task: tfsec@1
-      inputs:
-        version: 'v1.26.0'
-        dir: $(workDir)
-
-  - job: TfLintScanningJob
-    displayName: TFLINT Scanning Wala Job
-    pool: infra
-    steps:
-    - task: CmdLine@2
-      inputs:
-        script: 'echo Hello world'
-    - task: TerraformTask@5
-      inputs:
-        provider: 'azurerm'
-        command: 'init'
-        workingDirectory: '$(workDir)'
-        backendServiceArm: 'amit'
-        backendAzureRmStorageAccountName: 'vmstorageal'
-        backendAzureRmContainerName: 'tfstate'
-        backendAzureRmKey: 'dev.terraform.tfstate'
-    - task: TerraformTask@5
-      inputs:
-        provider: 'azurerm'
-        command: 'apply'
-        workingDirectory: '$(workDir)'
-        environmentServiceNameAzureRM: 'amit'
-
