@@ -1,6 +1,6 @@
 trigger: 
-- feature/*
-- main
+  - feature/*
+  - main
 
 pool: infra
 
@@ -13,30 +13,7 @@ stages:
   jobs:
   - job: TerraformJob
     steps:
-    - task: TerraformTask@5
-      displayName: Terraform Init
+    - task: TerraformInstaller@1
+      displayName: Install Terraform
       inputs:
-        provider: 'azurerm'
-        command: 'init'
-        workingDirectory: $(workDir)
-        backendServiceArm: 'amit'
-        backendAzureRmStorageAccountName: 'infrastoregeal'
-        backendAzureRmContainerName: 'tfstate'
-        backendAzureRmKey: 'dev.terraform.tfstate'
-
-    - task: TerraformTask@5
-      displayName: Terraform Plan
-      inputs:
-        provider: 'azurerm'
-        command: 'plan'
-        workingDirectory: $(workDir)
-        environmentServiceNameAzureRM: 'amit'
-
-    - task: TerraformTask@5
-      displayName: Terraform Apply
-      inputs:
-        provider: 'azurerm'
-        command: 'apply'
-        workingDirectory: $(workDir)
-        environmentServiceNameAzureRM: 'amit'
-        additionalArgs: '-auto-approve'
+        terraformVersion: 'latest'
